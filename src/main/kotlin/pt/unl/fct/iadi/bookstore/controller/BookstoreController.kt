@@ -84,27 +84,27 @@ class BookstoreController(private val service: BookstoreService) : BookstoreAPI 
 
     override fun replaceReview(
         @PathVariable isbn: String,
-        @PathVariable id: Long,
+        @PathVariable reviewId: Long,
         @Valid @RequestBody body: CreateReviewRequest
     ): ResponseEntity<*> {
-        val review = service.replaceReview(isbn, id, body.rating!!, body.comment)
+        val review = service.replaceReview(isbn, reviewId, body.rating!!, body.comment)
         return ResponseEntity.ok(review.toResponse())
     }
 
     override fun patchReview(
         @PathVariable isbn: String,
-        @PathVariable id: Long,
+        @PathVariable reviewId: Long,
         @Valid @RequestBody body: PatchReviewRequest
     ): ResponseEntity<*> {
-        val review = service.patchReview(isbn, id, body.rating, body.comment)
+        val review = service.patchReview(isbn, reviewId, body.rating, body.comment)
         return ResponseEntity.ok(review.toResponse())
     }
 
     override fun deleteReview(
         @PathVariable isbn: String,
-        @PathVariable id: Long
+        @PathVariable reviewId: Long
     ): ResponseEntity<*> {
-        service.deleteReview(isbn, id)
+        service.deleteReview(isbn, reviewId)
         return ResponseEntity.noContent().build<Unit>()
     }
 }
