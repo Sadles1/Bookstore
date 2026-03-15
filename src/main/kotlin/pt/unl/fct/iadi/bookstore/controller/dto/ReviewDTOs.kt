@@ -20,11 +20,21 @@ data class CreateReviewRequest(
     @field:NotNull(message = "Rating must not be null")
     @field:Min(value = 1, message = "Rating must be at least 1")
     @field:Max(value = 5, message = "Rating must be at most 5")
-    @field:Schema(description = "Rating score from 1 (worst) to 5 (best)", example = "5", minimum = "1", maximum = "5", requiredMode = Schema.RequiredMode.REQUIRED)
+    @field:Schema(
+        description = "Rating score from 1 (worst) to 5 (best)",
+        example = "5",
+        minimum = "1",
+        maximum = "5",
+        requiredMode = Schema.RequiredMode.REQUIRED
+    )
     val rating: Int?,
 
     @field:Size(max = 500, message = "Comment must not exceed 500 characters")
-    @field:Schema(description = "Optional comment (max 500 characters)", example = "An excellent read!", maxLength = 500)
+    @field:Schema(
+        description = "Optional comment (max 500 characters)",
+        example = "An excellent read!",
+        maxLength = 500
+    )
     val comment: String?
 )
 
@@ -40,7 +50,11 @@ data class PatchReviewRequest(
     val rating: Int?,
 
     @field:Size(max = 500, message = "Comment must not exceed 500 characters")
-    @field:Schema(description = "Optional comment (max 500 characters)", example = "Updated opinion after re-reading.", maxLength = 500)
+    @field:Schema(
+        description = "Optional comment (max 500 characters)",
+        example = "Updated opinion after re-reading.",
+        maxLength = 500
+    )
     val comment: String?
 )
 
