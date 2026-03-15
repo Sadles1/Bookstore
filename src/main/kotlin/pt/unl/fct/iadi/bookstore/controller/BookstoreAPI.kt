@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import pt.unl.fct.iadi.bookstore.controller.dto.BookResponse
 import pt.unl.fct.iadi.bookstore.controller.dto.CreateBookRequest
 import pt.unl.fct.iadi.bookstore.controller.dto.CreateReviewRequest
 import pt.unl.fct.iadi.bookstore.controller.dto.ErrorResponse
@@ -53,7 +54,9 @@ interface BookstoreAPI {
 
     @Operation(summary = "Get a book by ISBN")
     @ApiResponses(
-        ApiResponse(responseCode = "200", description = "Book found"),
+        ApiResponse(responseCode = "200", description = "Book found",
+            content = [Content(schema = Schema(implementation = BookResponse::class))]
+        ),
         ApiResponse(
             responseCode = "404", description = "Book not found",
             content = [Content(schema = Schema(implementation = ErrorResponse::class))]
