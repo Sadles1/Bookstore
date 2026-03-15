@@ -1,0 +1,868 @@
+### Bookstore API - IntelliJ HTTP Client sample requests
+### Base URL
+@baseUrl = http://localhost:8080
+
+###############################################################################
+# US1 - GET /books - List all books
+###############################################################################
+
+### US1 - List all books (initially empty)
+GET {{baseUrl}}/books
+Accept: application/json
+
+> {%
+client.assert(response.status === 200, "Expected HTTP 200");
+client.assert(Array.isArray(response.body), "Expected array body");
+client.assert(response.body.length === 0, "Expected empty list");
+%}
+
+###############################################################################
+# US2 - POST /books - Create a book
+###############################################################################
+
+### US2 - Create book "Clean Code" (success → 201)
+POST {{baseUrl}}/books
+Content-Type: application/json
+Accept: application/json
+
+{
+  "isbn": "9780132350884",
+  "title": "Clean Code",
+  "author": "Robert C. Martin",
+  "price": 34.99,
+  "image": "https://example.com/images/clean-code.jpg"
+}
+
+> {%
+client.assert(response.status === 201, "Expected HTTP 201");
+client.assert(response.body.isbn === "9780132350884", "Expected correct ISBN");
+client.assert(response.body.title === "Clean Code", "Expected correct title");
+client.assert(response.body.author === "Robert C. Martin", "Expected correct author");
+client.assert(response.body.image === "https://example.com/images/clean-code.jpg", "Expected correct image");
+client.assert(response.headers.valueOf("Location").includes("/books/9780132350884"), "Expected Location header");
+%}
+
+### US2 - ERROR: Duplicate ISBN (→ 409 Conflict)
+POST {{baseUrl}}/books
+Content-Type: application/json
+Accept: application/json
+
+{
+  "isbn": "9780132350884",
+  "title": "Clean Code Duplicate",
+  "author": "Robert C. Martin",
+  "price": 34.99,
+  "image": "https://example.com/images/clean-code.jpg"
+}
+
+> {%
+client.assert(response.status === 409, "Expected HTTP 409");
+client.assert(response.body.error === "CONFLICT", "Expected error=CONFLICT");
+%}
+
+### US2 - ERROR: Missing required fields (→ 400 Bad Request)
+POST {{baseUrl}}/books
+Content-Type: application/json
+Accept: application/json
+
+{
+  "isbn": "",
+  "title": "",
+  "author": "Some Author"
+}
+
+> {%
+client.assert(response.status === 400, "Expected HTTP 400");
+client.assert(response.body.error === "VALIDATION_ERROR", "Expected error=VALIDATION_ERROR");
+%}
+
+### US2 - ERROR: Price below minimum (→ 400 Bad Request)
+POST {{baseUrl}}/books
+Content-Type: application/json
+Accept: application/json
+
+{
+  "isbn": "9780000000001",
+  "title": "Free Book",
+  "author": "Some Author",
+  "price": 0.00,
+  "image": "https://example.com/images/free.jpg"
+}
+
+> {%
+client.assert(response.status === 400, "Expected HTTP 400");
+client.assert(response.body.error === "VALIDATION_ERROR", "Expected error=VALIDATION_ERROR");
+%}
+
+### US2 - ERROR: Invalid image URL (→ 400 Bad Request)
+POST {{baseUrl}}/books
+Content-Type: application/json
+Accept: application/json
+
+{
+  "isbn": "9780000000002",
+  "title": "Bad URL Book",
+  "author": "Some Author",
+  "price": 9.99,
+  "image": "not-a-valid-url"
+}
+
+> {%
+client.assert(response.status === 400, "Expected HTTP 400");
+client.assert(response.body.error === "VALIDATION_ERROR", "Expected error=VALIDATION_ERROR");
+%}
+
+### US1 - List all books (now shows created books)
+GET {{baseUrl}}/books
+Accept: application/json
+
+> {%
+client.assert(response.status === 200, "Expected HTTP 200");
+client.assert(Array.isArray(response.body), "Expected array body");
+client.assert(response.body.length === 1, "Expected exactly 1 book");
+client.assert(response.body[0].isbn === "9780132350884", "Expected Clean Code");
+%}
+
+###############################################################################
+# US3 - GET /books/{isbn} - Get book by ISBN
+###############################################################################
+
+### US3 - Get existing book (→ 200)
+GET {{baseUrl}}/books/9780132350884
+Accept: application/json
+
+> {%
+client.assert(response.status === 200, "Expected HTTP 200");
+client.assert(response.body.isbn === "9780132350884", "Expected correct ISBN");
+client.assert(response.body.title === "Clean Code", "Expected correct title");
+client.assert(response.body.author === "Robert C. Martin", "Expected correct author");
+%}
+
+### US3 - Get existing book with English language preference (→ 200)
+GET {{baseUrl}}/books/9780132350884
+Accept: application/json
+Accept-Language: en
+
+> {%
+client.assert(response.status === 200, "Expected HTTP 200");
+client.assert(response.body.isbn === "9780132350884", "Expected correct ISBN");
+%}
+
+### US3 - Get existing book with Portuguese language preference (→ 200)
+GET {{baseUrl}}/books/9780132350884
+Accept: application/json
+Accept-Language: pt-PT
+
+> {%
+client.assert(response.status === 200, "Expected HTTP 200");
+client.assert(response.body.isbn === "9780132350884", "Expected correct ISBN");
+%}
+
+### US3 - ERROR: Book not found - English error message (→ 404)
+GET {{baseUrl}}/books/9999999999999
+Accept: application/json
+Accept-Language: en
+
+> {%
+client.assert(response.status === 404, "Expected HTTP 404");
+client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
+client.assert(
+    response.body.message === "Book with ISBN 9999999999999 not found",
+    "Expected English error message"
+);
+client.assert(
+    response.headers.valueOf("Content-Language") === "en",
+    "Expected Content-Language: en"
+);
+%}
+
+### US3 - ERROR: Book not found - Portuguese error message (→ 404)
+GET {{baseUrl}}/books/9999999999999
+Accept: application/json
+Accept-Language: pt
+
+> {%
+client.assert(response.status === 404, "Expected HTTP 404");
+client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
+client.assert(
+    response.body.message === "Livro com ISBN 9999999999999 não encontrado",
+    "Expected Portuguese error message"
+);
+client.assert(
+    response.headers.valueOf("Content-Language") === "pt",
+    "Expected Content-Language: pt"
+);
+%}
+
+### US3 - ERROR: Book not found - Portuguese (pt-PT variant) error message (→ 404)
+GET {{baseUrl}}/books/9999999999999
+Accept: application/json
+Accept-Language: pt-PT,pt;q=0.9,en;q=0.8
+
+> {%
+client.assert(response.status === 404, "Expected HTTP 404");
+client.assert(
+    response.body.message === "Livro com ISBN 9999999999999 não encontrado",
+    "Expected Portuguese error message for pt-PT variant"
+);
+client.assert(
+    response.headers.valueOf("Content-Language") === "pt",
+    "Expected Content-Language: pt"
+);
+%}
+
+### US3 - ERROR: Book not found - no Accept-Language defaults to English (→ 404)
+GET {{baseUrl}}/books/9999999999999
+Accept: application/json
+
+> {%
+client.assert(response.status === 404, "Expected HTTP 404");
+client.assert(
+    response.body.message === "Book with ISBN 9999999999999 not found",
+    "Expected English message when no Accept-Language header"
+);
+client.assert(
+    response.headers.valueOf("Content-Language") === "en",
+    "Expected Content-Language: en"
+);
+%}
+
+###############################################################################
+# US4 - PUT /books/{isbn} - Full replace or create (upsert)
+###############################################################################
+
+### US4 - Replace existing book (→ 200 OK)
+PUT {{baseUrl}}/books/9780132350884
+Content-Type: application/json
+Accept: application/json
+
+{
+  "isbn": "9780132350884",
+  "title": "Clean Code (Updated Edition)",
+  "author": "Robert C. Martin",
+  "price": 38.99,
+  "image": "https://example.com/images/clean-code-updated.jpg"
+}
+
+> {%
+client.assert(response.status === 200, "Expected HTTP 200");
+client.assert(response.body.isbn === "9780132350884", "Expected correct ISBN");
+client.assert(response.body.title === "Clean Code (Updated Edition)", "Expected updated title");
+client.assert(response.body.image === "https://example.com/images/clean-code-updated.jpg", "Expected updated image");
+%}
+
+### US4 - Create new book via PUT (→ 201 Created with Location)
+PUT {{baseUrl}}/books/9780134685991
+Content-Type: application/json
+Accept: application/json
+
+{
+  "isbn": "9780134685991",
+  "title": "Effective Java",
+  "author": "Joshua Bloch",
+  "price": 49.99,
+  "image": "https://example.com/images/effective-java.jpg"
+}
+
+> {%
+client.assert(response.status === 201, "Expected HTTP 201");
+client.assert(response.body.isbn === "9780134685991", "Expected correct ISBN");
+client.assert(response.body.title === "Effective Java", "Expected correct title");
+client.assert(response.headers.valueOf("Location").includes("/books/9780134685991"), "Expected Location header");
+%}
+
+### US4 - ERROR: Validation failure on PUT (→ 400 Bad Request)
+PUT {{baseUrl}}/books/9780000000099
+Content-Type: application/json
+Accept: application/json
+
+{
+  "isbn": "9780000000099",
+  "title": "",
+  "author": "",
+  "price": -5.00,
+  "image": "not-a-url"
+}
+
+> {%
+client.assert(response.status === 400, "Expected HTTP 400");
+client.assert(response.body.error === "VALIDATION_ERROR", "Expected error=VALIDATION_ERROR");
+%}
+
+###############################################################################
+# Setup - Create "The Pragmatic Programmer" (needed for US5, US8, US10)
+###############################################################################
+
+### Setup - Create "The Pragmatic Programmer" (→ 201)
+POST {{baseUrl}}/books
+Content-Type: application/json
+Accept: application/json
+
+{
+  "isbn": "9780201616224",
+  "title": "The Pragmatic Programmer",
+  "author": "Andrew Hunt, David Thomas",
+  "price": 39.99,
+  "image": "https://example.com/images/pragmatic-programmer.jpg"
+}
+
+> {%
+client.assert(response.status === 201, "Expected HTTP 201");
+client.assert(response.body.isbn === "9780201616224", "Expected correct ISBN");
+%}
+
+###############################################################################
+# US5 - PATCH /books/{isbn} - Partial update
+###############################################################################
+
+### US5 - Update only the price (→ 200)
+PATCH {{baseUrl}}/books/9780132350884
+Content-Type: application/json
+Accept: application/json
+
+{
+  "price": 29.99
+}
+
+> {%
+client.assert(response.status === 200, "Expected HTTP 200");
+client.assert(response.body.isbn === "9780132350884", "Expected correct ISBN");
+client.assert(String(response.body.price).startsWith("29.99"), "Expected updated price 29.99");
+%}
+
+### US5 - Update title and author (→ 200)
+PATCH {{baseUrl}}/books/9780201616224
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "The Pragmatic Programmer: 20th Anniversary Edition",
+  "author": "David Thomas, Andrew Hunt"
+}
+
+> {%
+client.assert(response.status === 200, "Expected HTTP 200");
+client.assert(response.body.isbn === "9780201616224", "Expected correct ISBN");
+client.assert(response.body.title === "The Pragmatic Programmer: 20th Anniversary Edition", "Expected updated title");
+client.assert(response.body.author === "David Thomas, Andrew Hunt", "Expected updated author");
+%}
+
+### US5 - Update image URL (→ 200)
+PATCH {{baseUrl}}/books/9780201616224
+Content-Type: application/json
+Accept: application/json
+
+{
+  "image": "https://example.com/images/pragmatic-programmer-new.jpg"
+}
+
+> {%
+client.assert(response.status === 200, "Expected HTTP 200");
+client.assert(response.body.isbn === "9780201616224", "Expected correct ISBN");
+client.assert(response.body.image === "https://example.com/images/pragmatic-programmer-new.jpg", "Expected updated image");
+%}
+
+### US5 - ERROR: Book not found (→ 404)
+PATCH {{baseUrl}}/books/0000000000000
+Content-Type: application/json
+Accept: application/json
+
+{
+  "price": 9.99
+}
+
+> {%
+client.assert(response.status === 404, "Expected HTTP 404");
+client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
+%}
+
+### US5 - ERROR: Invalid field value in PATCH (→ 400)
+PATCH {{baseUrl}}/books/9780132350884
+Content-Type: application/json
+Accept: application/json
+
+{
+  "price": 0.00
+}
+
+> {%
+client.assert(response.status === 400, "Expected HTTP 400");
+client.assert(response.body.error === "VALIDATION_ERROR", "Expected error=VALIDATION_ERROR");
+%}
+
+###############################################################################
+# US6 - DELETE /books/{isbn} - Delete book and its reviews
+###############################################################################
+
+### US6 - Create a temporary book to delete
+POST {{baseUrl}}/books
+Content-Type: application/json
+Accept: application/json
+
+{
+  "isbn": "9780000000099",
+  "title": "Book To Delete",
+  "author": "Temp Author",
+  "price": 9.99,
+  "image": "https://example.com/images/temp.jpg"
+}
+
+> {%
+client.assert(response.status === 201, "Expected HTTP 201");
+client.assert(response.body.isbn === "9780000000099", "Expected correct ISBN");
+%}
+
+### US6 - Delete the temporary book (→ 204 No Content)
+DELETE {{baseUrl}}/books/9780000000099
+
+> {%
+client.assert(response.status === 204, "Expected HTTP 204");
+%}
+
+### US6 - ERROR: Delete non-existent book (→ 404)
+DELETE {{baseUrl}}/books/0000000000000
+
+> {%
+client.assert(response.status === 404, "Expected HTTP 404");
+client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
+%}
+
+###############################################################################
+# US7 - GET /books/{isbn}/reviews - List reviews
+###############################################################################
+
+### US7 - List reviews for existing book (initially empty)
+GET {{baseUrl}}/books/9780132350884/reviews
+Accept: application/json
+
+> {%
+client.assert(response.status === 200, "Expected HTTP 200");
+client.assert(Array.isArray(response.body), "Expected array body");
+client.assert(response.body.length === 0, "Expected empty list");
+%}
+
+### US7 - ERROR: List reviews for non-existent book (→ 404)
+GET {{baseUrl}}/books/0000000000000/reviews
+Accept: application/json
+
+> {%
+client.assert(response.status === 404, "Expected HTTP 404");
+client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
+%}
+
+###############################################################################
+# US8 - POST /books/{isbn}/reviews - Create a review
+# Review IDs assigned sequentially: Clean Code → 1, 2; Pragmatic Programmer → 3
+###############################################################################
+
+### US8 - Create first review for "Clean Code" (→ 201)
+POST {{baseUrl}}/books/9780132350884/reviews
+Content-Type: application/json
+Accept: application/json
+
+{
+  "rating": 5,
+  "comment": "An absolute must-read for any software developer. Changed how I write code."
+}
+
+> {%
+client.assert(response.status === 201, "Expected HTTP 201");
+client.assert(response.body.id === 1, "Expected review id=1");
+client.assert(response.body.rating === 5, "Expected rating 5");
+client.assert(response.body.comment !== null, "Expected non-null comment");
+client.assert(response.headers.valueOf("Location").includes("/reviews/1"), "Expected Location header");
+%}
+
+### US8 - Create second review without comment (→ 201)
+POST {{baseUrl}}/books/9780132350884/reviews
+Content-Type: application/json
+Accept: application/json
+
+{
+  "rating": 4
+}
+
+> {%
+client.assert(response.status === 201, "Expected HTTP 201");
+client.assert(response.body.id === 2, "Expected review id=2");
+client.assert(response.body.rating === 4, "Expected rating 4");
+client.assert(response.body.comment === null, "Expected null comment");
+%}
+
+### US8 - Create review with comment for "Pragmatic Programmer" (→ 201)
+POST {{baseUrl}}/books/9780201616224/reviews
+Content-Type: application/json
+Accept: application/json
+
+{
+  "rating": 5,
+  "comment": "Timeless advice. Highly recommended for developers at all levels."
+}
+
+> {%
+client.assert(response.status === 201, "Expected HTTP 201");
+client.assert(response.body.id === 3, "Expected review id=3");
+client.assert(response.body.rating === 5, "Expected rating 5");
+client.assert(response.headers.valueOf("Location").includes("/reviews/3"), "Expected Location header");
+%}
+
+### US7 - List reviews for "Clean Code" (now has 2 reviews)
+GET {{baseUrl}}/books/9780132350884/reviews
+Accept: application/json
+
+> {%
+client.assert(response.status === 200, "Expected HTTP 200");
+client.assert(Array.isArray(response.body), "Expected array body");
+client.assert(response.body.length === 2, "Expected exactly 2 reviews");
+%}
+
+### US8 - ERROR: Create review for non-existent book (→ 404)
+POST {{baseUrl}}/books/0000000000000/reviews
+Content-Type: application/json
+Accept: application/json
+
+{
+  "rating": 3,
+  "comment": "This book does not exist"
+}
+
+> {%
+client.assert(response.status === 404, "Expected HTTP 404");
+client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
+%}
+
+### US8 - ERROR: Rating out of range (→ 400)
+POST {{baseUrl}}/books/9780132350884/reviews
+Content-Type: application/json
+Accept: application/json
+
+{
+  "rating": 6,
+  "comment": "Over the maximum rating"
+}
+
+> {%
+client.assert(response.status === 400, "Expected HTTP 400");
+client.assert(response.body.error === "VALIDATION_ERROR", "Expected error=VALIDATION_ERROR");
+%}
+
+### US8 - ERROR: Rating below minimum (→ 400)
+POST {{baseUrl}}/books/9780132350884/reviews
+Content-Type: application/json
+Accept: application/json
+
+{
+  "rating": 0,
+  "comment": "Below the minimum rating"
+}
+
+> {%
+client.assert(response.status === 400, "Expected HTTP 400");
+client.assert(response.body.error === "VALIDATION_ERROR", "Expected error=VALIDATION_ERROR");
+%}
+
+### US8 - ERROR: Missing required rating field (→ 400)
+POST {{baseUrl}}/books/9780132350884/reviews
+Content-Type: application/json
+Accept: application/json
+
+{
+  "comment": "Forgot to add a rating"
+}
+
+> {%
+client.assert(response.status === 400, "Expected HTTP 400");
+client.assert(response.body.error === "VALIDATION_ERROR", "Expected error=VALIDATION_ERROR");
+%}
+
+### US8 - ERROR: Comment exceeds 500 characters (→ 400)
+POST {{baseUrl}}/books/9780132350884/reviews
+Content-Type: application/json
+Accept: application/json
+
+{
+  "rating": 3,
+  "comment": "This comment is way too long. AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+}
+
+> {%
+client.assert(response.status === 400, "Expected HTTP 400");
+client.assert(response.body.error === "VALIDATION_ERROR", "Expected error=VALIDATION_ERROR");
+%}
+
+###############################################################################
+# US9 - PUT /books/{isbn}/reviews/{id} - Full replacement of review
+###############################################################################
+
+### US9 - Fully replace review ID 1 for "Clean Code" (→ 200)
+PUT {{baseUrl}}/books/9780132350884/reviews/1
+Content-Type: application/json
+Accept: application/json
+
+{
+  "rating": 3,
+  "comment": "Good book, but some chapters are too verbose."
+}
+
+> {%
+client.assert(response.status === 200, "Expected HTTP 200");
+client.assert(response.body.id === 1, "Expected review id=1");
+client.assert(response.body.rating === 3, "Expected updated rating");
+client.assert(response.body.comment === "Good book, but some chapters are too verbose.", "Expected updated comment");
+%}
+
+### US9 - Replace review, clearing the comment (→ 200)
+PUT {{baseUrl}}/books/9780132350884/reviews/2
+Content-Type: application/json
+Accept: application/json
+
+{
+  "rating": 4
+}
+
+> {%
+client.assert(response.status === 200, "Expected HTTP 200");
+client.assert(response.body.id === 2, "Expected review id=2");
+client.assert(response.body.rating === 4, "Expected updated rating");
+client.assert(response.body.comment === null, "Expected null comment after full replace");
+%}
+
+### US9 - ERROR: Review not found (→ 404)
+PUT {{baseUrl}}/books/9780132350884/reviews/9999
+Content-Type: application/json
+Accept: application/json
+
+{
+  "rating": 5,
+  "comment": "This review does not exist"
+}
+
+> {%
+client.assert(response.status === 404, "Expected HTTP 404");
+client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
+%}
+
+### US9 - ERROR: Book not found (→ 404)
+PUT {{baseUrl}}/books/0000000000000/reviews/1
+Content-Type: application/json
+Accept: application/json
+
+{
+  "rating": 5,
+  "comment": "Book does not exist"
+}
+
+> {%
+client.assert(response.status === 404, "Expected HTTP 404");
+client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
+%}
+
+### US9 - ERROR: Invalid rating on PUT (→ 400)
+PUT {{baseUrl}}/books/9780132350884/reviews/1
+Content-Type: application/json
+Accept: application/json
+
+{
+  "rating": 10,
+  "comment": "Exceeds max rating"
+}
+
+> {%
+client.assert(response.status === 400, "Expected HTTP 400");
+client.assert(response.body.error === "VALIDATION_ERROR", "Expected error=VALIDATION_ERROR");
+%}
+
+###############################################################################
+# US10 - PATCH /books/{isbn}/reviews/{id} - Partial update of review
+###############################################################################
+
+### US10 - Update only the rating (→ 200)
+PATCH {{baseUrl}}/books/9780132350884/reviews/1
+Content-Type: application/json
+Accept: application/json
+
+{
+  "rating": 5
+}
+
+> {%
+client.assert(response.status === 200, "Expected HTTP 200");
+client.assert(response.body.id === 1, "Expected review id=1");
+client.assert(response.body.rating === 5, "Expected updated rating");
+client.assert(response.body.comment === "Good book, but some chapters are too verbose.", "Expected comment unchanged");
+%}
+
+### US10 - Update only the comment (→ 200)
+PATCH {{baseUrl}}/books/9780132350884/reviews/1
+Content-Type: application/json
+Accept: application/json
+
+{
+  "comment": "After re-reading, this is truly an exceptional book."
+}
+
+> {%
+client.assert(response.status === 200, "Expected HTTP 200");
+client.assert(response.body.id === 1, "Expected review id=1");
+client.assert(response.body.rating === 5, "Expected rating unchanged");
+client.assert(response.body.comment === "After re-reading, this is truly an exceptional book.", "Expected updated comment");
+%}
+
+### US10 - Update rating and comment together (→ 200)
+PATCH {{baseUrl}}/books/9780201616224/reviews/3
+Content-Type: application/json
+Accept: application/json
+
+{
+  "rating": 4,
+  "comment": "Still very good, but showing its age in some sections."
+}
+
+> {%
+client.assert(response.status === 200, "Expected HTTP 200");
+client.assert(response.body.id === 3, "Expected review id=3");
+client.assert(response.body.rating === 4, "Expected updated rating");
+client.assert(response.body.comment === "Still very good, but showing its age in some sections.", "Expected updated comment");
+%}
+
+### US10 - ERROR: Review not found (→ 404)
+PATCH {{baseUrl}}/books/9780132350884/reviews/9999
+Content-Type: application/json
+Accept: application/json
+
+{
+  "rating": 5
+}
+
+> {%
+client.assert(response.status === 404, "Expected HTTP 404");
+client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
+%}
+
+### US10 - ERROR: Book not found (→ 404)
+PATCH {{baseUrl}}/books/0000000000000/reviews/1
+Content-Type: application/json
+Accept: application/json
+
+{
+  "rating": 5
+}
+
+> {%
+client.assert(response.status === 404, "Expected HTTP 404");
+client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
+%}
+
+### US10 - ERROR: Rating out of valid range (→ 400)
+PATCH {{baseUrl}}/books/9780132350884/reviews/1
+Content-Type: application/json
+Accept: application/json
+
+{
+  "rating": -1
+}
+
+> {%
+client.assert(response.status === 400, "Expected HTTP 400");
+client.assert(response.body.error === "VALIDATION_ERROR", "Expected error=VALIDATION_ERROR");
+%}
+
+###############################################################################
+# US11 - DELETE /books/{isbn}/reviews/{id} - Delete a review
+###############################################################################
+
+### US11 - Delete review ID 2 from "Clean Code" (→ 204)
+DELETE {{baseUrl}}/books/9780132350884/reviews/2
+
+> {%
+client.assert(response.status === 204, "Expected HTTP 204");
+%}
+
+### US7 - Verify review was deleted (only review 1 should remain)
+GET {{baseUrl}}/books/9780132350884/reviews
+Accept: application/json
+
+> {%
+client.assert(response.status === 200, "Expected HTTP 200");
+client.assert(Array.isArray(response.body), "Expected array body");
+client.assert(response.body.length === 1, "Expected exactly 1 review remaining");
+client.assert(response.body[0].id === 1, "Expected review id=1 to remain");
+%}
+
+### US11 - ERROR: Delete non-existent review (→ 404)
+DELETE {{baseUrl}}/books/9780132350884/reviews/9999
+
+> {%
+client.assert(response.status === 404, "Expected HTTP 404");
+client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
+%}
+
+### US11 - ERROR: Delete review from non-existent book (→ 404)
+DELETE {{baseUrl}}/books/0000000000000/reviews/1
+
+> {%
+client.assert(response.status === 404, "Expected HTTP 404");
+client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
+%}
+
+###############################################################################
+# US6 - Cascade delete: verify reviews are removed when book is deleted
+###############################################################################
+
+### US6 Cascade - Create a book with a review to test cascade delete
+POST {{baseUrl}}/books
+Content-Type: application/json
+Accept: application/json
+
+{
+  "isbn": "9780000000100",
+  "title": "Book For Cascade Test",
+  "author": "Temp Author",
+  "price": 9.99,
+  "image": "https://example.com/images/cascade.jpg"
+}
+
+> {%
+client.assert(response.status === 201, "Expected HTTP 201");
+%}
+
+### US6 Cascade - Add a review to that book
+POST {{baseUrl}}/books/9780000000100/reviews
+Content-Type: application/json
+Accept: application/json
+
+{
+  "rating": 3,
+  "comment": "Review to be cascade-deleted"
+}
+
+> {%
+client.assert(response.status === 201, "Expected HTTP 201");
+%}
+
+### US6 Cascade - Delete the book
+DELETE {{baseUrl}}/books/9780000000100
+
+> {%
+client.assert(response.status === 204, "Expected HTTP 204");
+%}
+
+### US6 Cascade - Verify reviews are gone (→ 404, book no longer exists)
+GET {{baseUrl}}/books/9780000000100/reviews
+Accept: application/json
+
+> {%
+client.assert(response.status === 404, "Expected HTTP 404 - book and its reviews no longer exist");
+client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
+%}
+
+###############################################################################
+# Swagger UI & OpenAPI spec
+###############################################################################
+
+### Open Swagger UI (in browser)
+GET {{baseUrl}}/swagger-ui.html
+
+### Fetch raw OpenAPI spec as JSON
+GET {{baseUrl}}/v3/api-docs
+Accept: application/json
