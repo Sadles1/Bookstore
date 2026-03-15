@@ -34,7 +34,7 @@ interface BookstoreAPI {
     @GetMapping(produces = ["application/json"])
     fun getAllBooks(): ResponseEntity<*>
 
-    @Operation(summary = "Create a new book")
+    @Operation(summary = "Create a new book", operationId = "createBook")
     @ApiResponses(
         ApiResponse(responseCode = "201", description = "Book created successfully"),
         ApiResponse(
@@ -52,7 +52,7 @@ interface BookstoreAPI {
         @RequestBody body: CreateBookRequest
     ): ResponseEntity<*>
 
-    @Operation(summary = "Get a book by ISBN")
+    @Operation(summary = "Get a book by ISBN", operationId = "getBookByIsbn")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "Book found",
             content = [Content(schema = Schema(implementation = BookResponse::class))]
@@ -68,7 +68,7 @@ interface BookstoreAPI {
         @PathVariable isbn: String
     ): ResponseEntity<*>
 
-    @Operation(summary = "Upsert a book",)
+    @Operation(summary = "Upsert a book")
     @ApiResponses(
         ApiResponse(responseCode = "200", description = "Book replaced successfully"),
         ApiResponse(responseCode = "201", description = "Book created successfully"),

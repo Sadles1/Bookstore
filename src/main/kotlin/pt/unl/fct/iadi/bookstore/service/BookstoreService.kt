@@ -22,7 +22,7 @@ class BookstoreService {
      *
      * @throws BookAlreadyExistsException if a book with the same ISBN already exists
      */
-    fun createBook(isbn: String, title: String, author: String, price: BigDecimal, image: String): Book {
+    fun createBook(isbn: String, title: String, author: String, price: Double, image: String): Book {
         if (books.containsKey(isbn))
             throw BookAlreadyExistsException(isbn)
 
@@ -47,7 +47,7 @@ class BookstoreService {
      * Returns a [Pair] where the first element is the persisted [Book] and the second
      * element is `true` if the book was *created*, or `false` if it was *replaced*
      */
-    fun upsertBook(isbn: String, title: String, author: String, price: BigDecimal, image: String): Pair<Book, Boolean> {
+    fun upsertBook(isbn: String, title: String, author: String, price: Double, image: String): Pair<Book, Boolean> {
         val created = !books.containsKey(isbn)
         val book = Book(isbn = isbn, title = title, author = author, price = price, image = image)
         books[isbn] = book
@@ -63,7 +63,7 @@ class BookstoreService {
      *
      * @throws BookNotFoundException if no book with the given ISBN exists.
      */
-    fun patchBook(isbn: String, title: String?, author: String?, price: BigDecimal?, image: String?): Book {
+    fun patchBook(isbn: String, title: String?, author: String?, price: Double?, image: String?): Book {
         val book = books[isbn] ?: throw BookNotFoundException(isbn)
         title?.let { book.title = it }
         author?.let { book.author = it }

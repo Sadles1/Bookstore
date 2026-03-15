@@ -5,6 +5,7 @@ import jakarta.validation.constraints.DecimalMin
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
+import jakarta.validation.constraints.Positive
 import jakarta.validation.constraints.Size
 import java.math.BigDecimal
 
@@ -50,7 +51,7 @@ data class CreateBookRequest(
     val author: String?,
 
     @field:NotNull(message = "Price must not be null")
-    @field:DecimalMin(value = "0", inclusive = false, message = "Price must be greater than 0")
+    @field:Positive
     @field:Schema(
         description = "Price of the book, must be greater than 0",
         example = "34.99",
@@ -58,7 +59,7 @@ data class CreateBookRequest(
         exclusiveMinimum = true,
         requiredMode = Schema.RequiredMode.REQUIRED
     )
-    val price: BigDecimal?,
+    val price: Double?,
 
     @field:NotBlank(message = "Image URL must not be blank")
     @field:Pattern(regexp = "^https?://.*", message = "Image must be a valid HTTP or HTTPS URL")
@@ -94,14 +95,14 @@ data class PatchBookRequest(
     )
     val author: String?,
 
-    @field:DecimalMin(value = "0", inclusive = false, message = "Price must be greater than 0")
+    @field:Positive
     @field:Schema(
         description = "Price of the book, must be greater than 0",
         example = "29.99",
         minimum = "0",
         exclusiveMinimum = true
     )
-    val price: BigDecimal?,
+    val price: Double?,
 
     @field:Pattern(regexp = "^https?://.*", message = "Image must be a valid HTTP or HTTPS URL")
     @field:Schema(
@@ -120,18 +121,49 @@ data class PatchBookRequest(
  */
 @Schema(description = "Book resource representation")
 data class BookResponse(
-    @field:Schema(description = "Unique ISBN identifier", example = "9780132350884")
+    @field:NotBlank(message = "ISBN must not be blank")
+    @field:Schema(
+        description = "Unique ISBN identifier",
+        example = "9780132350884",
+        requiredMode = Schema.RequiredMode.REQUIRED
+    )
     val isbn: String,
 
-    @field:Schema(description = "Title of the book", example = "Clean Code")
+    @field:NotBlank(message = "Title must not be blank")
+    @field:Size(min = 1, max = 120, message = "Title must be between 1 and 120 characters")
+    @field:Schema(
+        description = "Title of the book (1–120 characters)",
+        example = "Clean Code",
+        minLength = 1,
+        maxLength = 120,
+        requiredMode = Schema.RequiredMode.REQUIRED
+    )
     val title: String,
 
-    @field:Schema(description = "Author of the book", example = "Robert C. Martin")
+    @field:NotBlank(message = "Author must not be blank")
+    @field:Size(min = 1, max = 80, message = "Author must be between 1 and 80 characters")
+    @field:Schema(
+        description = "Author of the book (1–80 characters)",
+        example = "Robert C. Martin",
+        minLength = 1,
+        maxLength = 80,
+        requiredMode = Schema.RequiredMode.REQUIRED
+    )
     val author: String,
 
-    @field:Schema(description = "Price of the book", example = "34.99")
-    val price: BigDecimal,
+    @field:Positive
+    @field:Schema(
+        description = "Price of the book, must be greater than 0",
+        example = "29.99",
+        minimum = "0",
+        exclusiveMinimum = true
+    )
+    val price: Double,
 
-    @field:Schema(description = "URL to the book cover image", example = "https://example.com/images/clean-code.jpg")
+    @field:Pattern(regexp = "^https?://.*", message = "Image must be a valid HTTP or HTTPS URL")
+    @field:Schema(
+        description = "URL to the book cover image (must be a valid HTTP/HTTPS URL)",
+        example = "https://example.com/images/clean-code.jpg"
+    )
     val image: String
 )
