@@ -35,10 +35,6 @@ Accept: application/json
 
 > {%
 client.assert(response.status === 201, "Expected HTTP 201");
-client.assert(response.body.isbn === "9780132350884", "Expected correct ISBN");
-client.assert(response.body.title === "Clean Code", "Expected correct title");
-client.assert(response.body.author === "Robert C. Martin", "Expected correct author");
-client.assert(response.body.image === "https://example.com/images/clean-code.jpg", "Expected correct image");
 client.assert(response.headers.valueOf("Location").includes("/books/9780132350884"), "Expected Location header");
 %}
 
@@ -308,7 +304,7 @@ Accept: application/json
 
 > {%
 client.assert(response.status === 201, "Expected HTTP 201");
-client.assert(response.body.isbn === "9780201616224", "Expected correct ISBN");
+client.assert(response.headers.valueOf("Location").includes("/books/9780201616224"), "Expected Location header");
 %}
 
 ###############################################################################
@@ -409,7 +405,7 @@ Accept: application/json
 
 > {%
 client.assert(response.status === 201, "Expected HTTP 201");
-client.assert(response.body.isbn === "9780000000099", "Expected correct ISBN");
+client.assert(response.headers.valueOf("Location").includes("/books/9780000000099"), "Expected Location header");
 %}
 
 ### US6 - Delete the temporary book (→ 204 No Content)
@@ -824,6 +820,7 @@ Accept: application/json
 
 > {%
 client.assert(response.status === 201, "Expected HTTP 201");
+client.assert(response.headers.valueOf("Location").includes("/books/9780000000100"), "Expected Location header");
 %}
 
 ### US6 Cascade - Add a review to that book

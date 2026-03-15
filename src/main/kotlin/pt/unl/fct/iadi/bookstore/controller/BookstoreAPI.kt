@@ -50,7 +50,7 @@ interface BookstoreAPI {
     fun createBook(
         @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Book to create", required = true)
         @RequestBody body: CreateBookRequest
-    ): ResponseEntity<*>
+    ): ResponseEntity<Unit>
 
     @Operation(summary = "Get a book by ISBN", operationId = "getBookByIsbn")
     @ApiResponses(

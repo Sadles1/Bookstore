@@ -28,11 +28,11 @@ class BookstoreController(private val service: BookstoreService) : BookstoreAPI 
 
     override fun createBook(
         @Valid @RequestBody body: CreateBookRequest
-    ): ResponseEntity<*> {
+    ): ResponseEntity<Unit> {
         val book = service.createBook(body.isbn!!, body.title!!, body.author!!, body.price!!, body.image!!)
         val location = ServletUriComponentsBuilder.fromCurrentRequest()
             .path("/{isbn}").buildAndExpand(book.isbn).toUri()
-        return ResponseEntity.created(location).body(book.toResponse())
+        return ResponseEntity.created(location).build()
     }
 
     override fun getBookByIsbn(@PathVariable isbn: String): ResponseEntity<*> {
