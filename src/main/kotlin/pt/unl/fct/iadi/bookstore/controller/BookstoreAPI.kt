@@ -162,12 +162,12 @@ interface BookstoreAPI {
             content = [Content(schema = Schema(implementation = ErrorResponse::class))]
         )
     )
-    @PutMapping("/{isbn}/reviews/{id}", consumes = ["application/json"], produces = ["application/json"])
+    @PutMapping("/{isbn}/reviews/{reviewId}", consumes = ["application/json"], produces = ["application/json"])
     fun replaceReview(
         @Parameter(description = "ISBN of the book", required = true)
         @PathVariable isbn: String,
         @Parameter(description = "ID of the review to replace", required = true)
-        @PathVariable id: Long,
+        @PathVariable reviewId: Long,
         @io.swagger.v3.oas.annotations.parameters.RequestBody(
             description = "Full review representation",
             required = true
@@ -187,12 +187,12 @@ interface BookstoreAPI {
             content = [Content(schema = Schema(implementation = ErrorResponse::class))]
         )
     )
-    @PatchMapping("/{isbn}/reviews/{id}", consumes = ["application/json"], produces = ["application/json"])
+    @PatchMapping("/{isbn}/reviews/{reviewId}", consumes = ["application/json"], produces = ["application/json"])
     fun patchReview(
         @Parameter(description = "ISBN of the book", required = true)
         @PathVariable isbn: String,
         @Parameter(description = "ID of the review to update", required = true)
-        @PathVariable id: Long,
+        @PathVariable reviewId: Long,
         @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Fields to update", required = true)
         @RequestBody body: PatchReviewRequest
     ): ResponseEntity<*>
@@ -205,11 +205,11 @@ interface BookstoreAPI {
             content = [Content(schema = Schema(implementation = ErrorResponse::class))]
         )
     )
-    @DeleteMapping("/{isbn}/reviews/{id}")
+    @DeleteMapping("/{isbn}/reviews/{reviewId}")
     fun deleteReview(
         @Parameter(description = "ISBN of the book", required = true)
         @PathVariable isbn: String,
         @Parameter(description = "ID of the review to delete", required = true)
-        @PathVariable id: Long
+        @PathVariable reviewId: Long
     ): ResponseEntity<*>
 }
