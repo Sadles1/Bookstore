@@ -41,6 +41,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 )
 class SecurityConfig {
 
+    companion object {
+        private const val BOOKS_PATTERN = "/books/**"
+    }
+
     @Bean
     fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
@@ -80,12 +84,12 @@ class SecurityConfig {
                     // OpenAPI docs and Swagger UI are publicly accessible
                     .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                     // GET requests only require a valid API token (no Basic Auth)
-                    .requestMatchers(HttpMethod.GET, "/books/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, BOOKS_PATTERN).permitAll()
                     // Write operations require authentication
-                    .requestMatchers(HttpMethod.POST, "/books/**").authenticated()
-                    .requestMatchers(HttpMethod.PUT, "/books/**").authenticated()
-                    .requestMatchers(HttpMethod.PATCH, "/books/**").authenticated()
-                    .requestMatchers(HttpMethod.DELETE, "/books/**").authenticated()
+                    .requestMatchers(HttpMethod.POST, BOOKS_PATTERN).authenticated()
+                    .requestMatchers(HttpMethod.PUT, BOOKS_PATTERN).authenticated()
+                    .requestMatchers(HttpMethod.PATCH, BOOKS_PATTERN).authenticated()
+                    .requestMatchers(HttpMethod.DELETE, BOOKS_PATTERN).authenticated()
                     .anyRequest().authenticated()
             }
             .httpBasic { it.authenticationEntryPoint(authenticationEntryPoint) }
