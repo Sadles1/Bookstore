@@ -2,6 +2,8 @@ package pt.unl.fct.iadi.bookstore.controller
 
 import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
@@ -19,7 +21,7 @@ import pt.unl.fct.iadi.bookstore.service.BookstoreService
 @RestController
 class BookstoreController(private val service: BookstoreService) : BookstoreAPI {
     private fun Book.toResponse() = BookResponse(isbn, title, author, price, image)
-    private fun Review.toResponse() = ReviewResponse(id, rating, comment)
+    private fun Review.toResponse() = ReviewResponse(id, rating, comment, author)
 
     override fun getAllBooks(): ResponseEntity<*> {
         val books = service.getAllBooks().map { it.toResponse() }
@@ -61,6 +63,7 @@ class BookstoreController(private val service: BookstoreService) : BookstoreAPI 
         return ResponseEntity.ok(book.toResponse())
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     override fun deleteBook(@PathVariable isbn: String): ResponseEntity<*> {
         service.deleteBook(isbn)
         return ResponseEntity.noContent().build<Unit>()
@@ -75,13 +78,15 @@ class BookstoreController(private val service: BookstoreService) : BookstoreAPI 
         @PathVariable isbn: String,
         @Valid @RequestBody body: CreateReviewRequest
     ): ResponseEntity<*> {
-        val review = service.createReview(isbn, body.rating!!, body.comment)
+        val auth = org.springframework.security.core.context.SecurityContextHolder.getContext().authentication
+        val review = service.createReview(isbn, body.rating!!, body.comment, auth.name)
         val location = ServletUriComponentsBuilder.fromCurrentRequest()
             .path("/{id}").buildAndExpand(review.id).toUri()
 
         return ResponseEntity.created(location).body(review.toResponse())
     }
 
+    @PreAuthorize("@bookstoreService.getReviewAuthor(#isbn, #reviewId) == authentication.name or hasRole('ADMIN')")
     override fun replaceReview(
         @PathVariable isbn: String,
         @PathVariable reviewId: Long,
@@ -91,6 +96,7 @@ class BookstoreController(private val service: BookstoreService) : BookstoreAPI 
         return ResponseEntity.ok(review.toResponse())
     }
 
+    @PreAuthorize("@bookstoreService.getReviewAuthor(#isbn, #reviewId) == authentication.name or hasRole('ADMIN')")
     override fun patchReview(
         @PathVariable isbn: String,
         @PathVariable reviewId: Long,
@@ -100,6 +106,7 @@ class BookstoreController(private val service: BookstoreService) : BookstoreAPI 
         return ResponseEntity.ok(review.toResponse())
     }
 
+    @PreAuthorize("@bookstoreService.getReviewAuthor(#isbn, #reviewId) == authentication.name or hasRole('ADMIN')")
     override fun deleteReview(
         @PathVariable isbn: String,
         @PathVariable reviewId: Long

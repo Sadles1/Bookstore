@@ -74,5 +74,8 @@ data class ReviewResponse(
     val rating: Int,
 
     @field:Schema(description = "Optional reviewer comment (max 500 characters)", example = "An excellent read!")
-    val comment: String?
+    val comment: String?,
+
+    @field:Schema(description = "Username of the author who created this review", example = "editor1")
+    val author: String
 )

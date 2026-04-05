@@ -1,6 +1,7 @@
 ### Bookstore API - IntelliJ HTTP Client sample requests
 ### Base URL
 @baseUrl = http://localhost:8080
+@token = token-catalog-abc123
 
 ###############################################################################
 # US1 - GET /books - List all books
@@ -9,6 +10,7 @@
 ### US1 - List all books (initially empty)
 GET {{baseUrl}}/books
 Accept: application/json
+X-Api-Token: {{token}}
 
 > {%
 client.assert(response.status === 200, "Expected HTTP 200");
@@ -24,6 +26,8 @@ client.assert(response.body.length === 0, "Expected empty list");
 POST {{baseUrl}}/books
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "isbn": "9780132350884",
@@ -42,6 +46,8 @@ client.assert(response.headers.valueOf("Location").includes("/books/978013235088
 POST {{baseUrl}}/books
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "isbn": "9780132350884",
@@ -60,6 +66,8 @@ client.assert(response.body.error === "CONFLICT", "Expected error=CONFLICT");
 POST {{baseUrl}}/books
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "isbn": "",
@@ -76,6 +84,8 @@ client.assert(response.body.error === "VALIDATION_ERROR", "Expected error=VALIDA
 POST {{baseUrl}}/books
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "isbn": "9780000000001",
@@ -94,6 +104,8 @@ client.assert(response.body.error === "VALIDATION_ERROR", "Expected error=VALIDA
 POST {{baseUrl}}/books
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "isbn": "9780000000002",
@@ -111,6 +123,7 @@ client.assert(response.body.error === "VALIDATION_ERROR", "Expected error=VALIDA
 ### US1 - List all books (now shows created books)
 GET {{baseUrl}}/books
 Accept: application/json
+X-Api-Token: {{token}}
 
 > {%
 client.assert(response.status === 200, "Expected HTTP 200");
@@ -126,6 +139,7 @@ client.assert(response.body[0].isbn === "9780132350884", "Expected Clean Code");
 ### US3 - Get existing book (→ 200)
 GET {{baseUrl}}/books/9780132350884
 Accept: application/json
+X-Api-Token: {{token}}
 
 > {%
 client.assert(response.status === 200, "Expected HTTP 200");
@@ -138,6 +152,7 @@ client.assert(response.body.author === "Robert C. Martin", "Expected correct aut
 GET {{baseUrl}}/books/9780132350884
 Accept: application/json
 Accept-Language: en
+X-Api-Token: {{token}}
 
 > {%
 client.assert(response.status === 200, "Expected HTTP 200");
@@ -148,6 +163,7 @@ client.assert(response.body.isbn === "9780132350884", "Expected correct ISBN");
 GET {{baseUrl}}/books/9780132350884
 Accept: application/json
 Accept-Language: pt-PT
+X-Api-Token: {{token}}
 
 > {%
 client.assert(response.status === 200, "Expected HTTP 200");
@@ -158,6 +174,7 @@ client.assert(response.body.isbn === "9780132350884", "Expected correct ISBN");
 GET {{baseUrl}}/books/9999999999999
 Accept: application/json
 Accept-Language: en
+X-Api-Token: {{token}}
 
 > {%
 client.assert(response.status === 404, "Expected HTTP 404");
@@ -176,6 +193,7 @@ client.assert(
 GET {{baseUrl}}/books/9999999999999
 Accept: application/json
 Accept-Language: pt
+X-Api-Token: {{token}}
 
 > {%
 client.assert(response.status === 404, "Expected HTTP 404");
@@ -194,6 +212,7 @@ client.assert(
 GET {{baseUrl}}/books/9999999999999
 Accept: application/json
 Accept-Language: pt-PT,pt;q=0.9,en;q=0.8
+X-Api-Token: {{token}}
 
 > {%
 client.assert(response.status === 404, "Expected HTTP 404");
@@ -210,6 +229,7 @@ client.assert(
 ### US3 - ERROR: Book not found - no Accept-Language defaults to English (→ 404)
 GET {{baseUrl}}/books/9999999999999
 Accept: application/json
+X-Api-Token: {{token}}
 
 > {%
 client.assert(response.status === 404, "Expected HTTP 404");
@@ -231,6 +251,8 @@ client.assert(
 PUT {{baseUrl}}/books/9780132350884
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "isbn": "9780132350884",
@@ -251,6 +273,8 @@ client.assert(response.body.image === "https://example.com/images/clean-code-upd
 PUT {{baseUrl}}/books/9780134685991
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "isbn": "9780134685991",
@@ -271,6 +295,8 @@ client.assert(response.headers.valueOf("Location").includes("/books/978013468599
 PUT {{baseUrl}}/books/9780000000099
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "isbn": "9780000000099",
@@ -293,6 +319,8 @@ client.assert(response.body.error === "VALIDATION_ERROR", "Expected error=VALIDA
 POST {{baseUrl}}/books
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "isbn": "9780201616224",
@@ -315,6 +343,8 @@ client.assert(response.headers.valueOf("Location").includes("/books/978020161622
 PATCH {{baseUrl}}/books/9780132350884
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "price": 29.99
@@ -330,6 +360,8 @@ client.assert(String(response.body.price).startsWith("29.99"), "Expected updated
 PATCH {{baseUrl}}/books/9780201616224
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "title": "The Pragmatic Programmer: 20th Anniversary Edition",
@@ -347,6 +379,8 @@ client.assert(response.body.author === "David Thomas, Andrew Hunt", "Expected up
 PATCH {{baseUrl}}/books/9780201616224
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "image": "https://example.com/images/pragmatic-programmer-new.jpg"
@@ -362,6 +396,8 @@ client.assert(response.body.image === "https://example.com/images/pragmatic-prog
 PATCH {{baseUrl}}/books/0000000000000
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "price": 9.99
@@ -376,6 +412,8 @@ client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
 PATCH {{baseUrl}}/books/9780132350884
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "price": 0.00
@@ -387,13 +425,15 @@ client.assert(response.body.error === "VALIDATION_ERROR", "Expected error=VALIDA
 %}
 
 ###############################################################################
-# US6 - DELETE /books/{isbn} - Delete book and its reviews
+# US6 - DELETE /books/{isbn} - Delete book and its reviews (ADMIN only)
 ###############################################################################
 
 ### US6 - Create a temporary book to delete
 POST {{baseUrl}}/books
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic YWRtaW46YWRtaW5wYXNz
 
 {
   "isbn": "9780000000099",
@@ -408,19 +448,32 @@ client.assert(response.status === 201, "Expected HTTP 201");
 client.assert(response.headers.valueOf("Location").includes("/books/9780000000099"), "Expected Location header");
 %}
 
-### US6 - Delete the temporary book (→ 204 No Content)
+### US6 - Delete the temporary book (→ 204 No Content) - ADMIN
 DELETE {{baseUrl}}/books/9780000000099
+X-Api-Token: {{token}}
+Authorization: Basic YWRtaW46YWRtaW5wYXNz
 
 > {%
 client.assert(response.status === 204, "Expected HTTP 204");
 %}
 
-### US6 - ERROR: Delete non-existent book (→ 404)
+### US6 - ERROR: Delete non-existent book (→ 404) - ADMIN
 DELETE {{baseUrl}}/books/0000000000000
+X-Api-Token: {{token}}
+Authorization: Basic YWRtaW46YWRtaW5wYXNz
 
 > {%
 client.assert(response.status === 404, "Expected HTTP 404");
 client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
+%}
+
+### US6 - ERROR: Delete book as EDITOR (→ 403 Forbidden)
+DELETE {{baseUrl}}/books/9780132350884
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
+
+> {%
+client.assert(response.status === 403, "Expected HTTP 403 - editors cannot delete books");
 %}
 
 ###############################################################################
@@ -430,6 +483,7 @@ client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
 ### US7 - List reviews for existing book (initially empty)
 GET {{baseUrl}}/books/9780132350884/reviews
 Accept: application/json
+X-Api-Token: {{token}}
 
 > {%
 client.assert(response.status === 200, "Expected HTTP 200");
@@ -440,6 +494,7 @@ client.assert(response.body.length === 0, "Expected empty list");
 ### US7 - ERROR: List reviews for non-existent book (→ 404)
 GET {{baseUrl}}/books/0000000000000/reviews
 Accept: application/json
+X-Api-Token: {{token}}
 
 > {%
 client.assert(response.status === 404, "Expected HTTP 404");
@@ -451,10 +506,12 @@ client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
 # Review IDs assigned sequentially: Clean Code → 1, 2; Pragmatic Programmer → 3
 ###############################################################################
 
-### US8 - Create first review for "Clean Code" (→ 201)
+### US8 - Create first review for "Clean Code" (→ 201) - editor1
 POST {{baseUrl}}/books/9780132350884/reviews
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "rating": 5,
@@ -466,13 +523,16 @@ client.assert(response.status === 201, "Expected HTTP 201");
 client.assert(response.body.id === 1, "Expected review id=1");
 client.assert(response.body.rating === 5, "Expected rating 5");
 client.assert(response.body.comment !== null, "Expected non-null comment");
+client.assert(response.body.author === "editor1", "Expected author=editor1");
 client.assert(response.headers.valueOf("Location").includes("/reviews/1"), "Expected Location header");
 %}
 
-### US8 - Create second review without comment (→ 201)
+### US8 - Create second review without comment (→ 201) - editor2
 POST {{baseUrl}}/books/9780132350884/reviews
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMjplZGl0b3IycGFzcw==
 
 {
   "rating": 4
@@ -483,12 +543,15 @@ client.assert(response.status === 201, "Expected HTTP 201");
 client.assert(response.body.id === 2, "Expected review id=2");
 client.assert(response.body.rating === 4, "Expected rating 4");
 client.assert(response.body.comment === null, "Expected null comment");
+client.assert(response.body.author === "editor2", "Expected author=editor2");
 %}
 
-### US8 - Create review with comment for "Pragmatic Programmer" (→ 201)
+### US8 - Create review with comment for "Pragmatic Programmer" (→ 201) - editor1
 POST {{baseUrl}}/books/9780201616224/reviews
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "rating": 5,
@@ -499,12 +562,14 @@ Accept: application/json
 client.assert(response.status === 201, "Expected HTTP 201");
 client.assert(response.body.id === 3, "Expected review id=3");
 client.assert(response.body.rating === 5, "Expected rating 5");
+client.assert(response.body.author === "editor1", "Expected author=editor1");
 client.assert(response.headers.valueOf("Location").includes("/reviews/3"), "Expected Location header");
 %}
 
 ### US7 - List reviews for "Clean Code" (now has 2 reviews)
 GET {{baseUrl}}/books/9780132350884/reviews
 Accept: application/json
+X-Api-Token: {{token}}
 
 > {%
 client.assert(response.status === 200, "Expected HTTP 200");
@@ -516,6 +581,8 @@ client.assert(response.body.length === 2, "Expected exactly 2 reviews");
 POST {{baseUrl}}/books/0000000000000/reviews
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "rating": 3,
@@ -531,6 +598,8 @@ client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
 POST {{baseUrl}}/books/9780132350884/reviews
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "rating": 6,
@@ -546,6 +615,8 @@ client.assert(response.body.error === "VALIDATION_ERROR", "Expected error=VALIDA
 POST {{baseUrl}}/books/9780132350884/reviews
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "rating": 0,
@@ -561,6 +632,8 @@ client.assert(response.body.error === "VALIDATION_ERROR", "Expected error=VALIDA
 POST {{baseUrl}}/books/9780132350884/reviews
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "comment": "Forgot to add a rating"
@@ -575,6 +648,8 @@ client.assert(response.body.error === "VALIDATION_ERROR", "Expected error=VALIDA
 POST {{baseUrl}}/books/9780132350884/reviews
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "rating": 3,
@@ -590,10 +665,12 @@ client.assert(response.body.error === "VALIDATION_ERROR", "Expected error=VALIDA
 # US9 - PUT /books/{isbn}/reviews/{id} - Full replacement of review
 ###############################################################################
 
-### US9 - Fully replace review ID 1 for "Clean Code" (→ 200)
+### US9 - Fully replace review ID 1 for "Clean Code" (→ 200) - editor1 (author)
 PUT {{baseUrl}}/books/9780132350884/reviews/1
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "rating": 3,
@@ -607,10 +684,12 @@ client.assert(response.body.rating === 3, "Expected updated rating");
 client.assert(response.body.comment === "Good book, but some chapters are too verbose.", "Expected updated comment");
 %}
 
-### US9 - Replace review, clearing the comment (→ 200)
+### US9 - Replace review, clearing the comment (→ 200) - editor2 (author)
 PUT {{baseUrl}}/books/9780132350884/reviews/2
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMjplZGl0b3IycGFzcw==
 
 {
   "rating": 4
@@ -627,6 +706,8 @@ client.assert(response.body.comment === null, "Expected null comment after full 
 PUT {{baseUrl}}/books/9780132350884/reviews/9999
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "rating": 5,
@@ -642,6 +723,8 @@ client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
 PUT {{baseUrl}}/books/0000000000000/reviews/1
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "rating": 5,
@@ -657,6 +740,8 @@ client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
 PUT {{baseUrl}}/books/9780132350884/reviews/1
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "rating": 10,
@@ -672,10 +757,12 @@ client.assert(response.body.error === "VALIDATION_ERROR", "Expected error=VALIDA
 # US10 - PATCH /books/{isbn}/reviews/{id} - Partial update of review
 ###############################################################################
 
-### US10 - Update only the rating (→ 200)
+### US10 - Update only the rating (→ 200) - editor1 (author)
 PATCH {{baseUrl}}/books/9780132350884/reviews/1
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "rating": 5
@@ -688,10 +775,12 @@ client.assert(response.body.rating === 5, "Expected updated rating");
 client.assert(response.body.comment === "Good book, but some chapters are too verbose.", "Expected comment unchanged");
 %}
 
-### US10 - Update only the comment (→ 200)
+### US10 - Update only the comment (→ 200) - editor1 (author)
 PATCH {{baseUrl}}/books/9780132350884/reviews/1
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "comment": "After re-reading, this is truly an exceptional book."
@@ -704,10 +793,12 @@ client.assert(response.body.rating === 5, "Expected rating unchanged");
 client.assert(response.body.comment === "After re-reading, this is truly an exceptional book.", "Expected updated comment");
 %}
 
-### US10 - Update rating and comment together (→ 200)
+### US10 - Update rating and comment together (→ 200) - editor1 (author)
 PATCH {{baseUrl}}/books/9780201616224/reviews/3
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "rating": 4,
@@ -725,6 +816,8 @@ client.assert(response.body.comment === "Still very good, but showing its age in
 PATCH {{baseUrl}}/books/9780132350884/reviews/9999
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "rating": 5
@@ -739,6 +832,8 @@ client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
 PATCH {{baseUrl}}/books/0000000000000/reviews/1
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "rating": 5
@@ -753,6 +848,8 @@ client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
 PATCH {{baseUrl}}/books/9780132350884/reviews/1
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 {
   "rating": -1
@@ -767,8 +864,10 @@ client.assert(response.body.error === "VALIDATION_ERROR", "Expected error=VALIDA
 # US11 - DELETE /books/{isbn}/reviews/{id} - Delete a review
 ###############################################################################
 
-### US11 - Delete review ID 2 from "Clean Code" (→ 204)
+### US11 - Delete review ID 2 from "Clean Code" (→ 204) - editor2 (author)
 DELETE {{baseUrl}}/books/9780132350884/reviews/2
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMjplZGl0b3IycGFzcw==
 
 > {%
 client.assert(response.status === 204, "Expected HTTP 204");
@@ -777,6 +876,7 @@ client.assert(response.status === 204, "Expected HTTP 204");
 ### US7 - Verify review was deleted (only review 1 should remain)
 GET {{baseUrl}}/books/9780132350884/reviews
 Accept: application/json
+X-Api-Token: {{token}}
 
 > {%
 client.assert(response.status === 200, "Expected HTTP 200");
@@ -787,6 +887,8 @@ client.assert(response.body[0].id === 1, "Expected review id=1 to remain");
 
 ### US11 - ERROR: Delete non-existent review (→ 404)
 DELETE {{baseUrl}}/books/9780132350884/reviews/9999
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 > {%
 client.assert(response.status === 404, "Expected HTTP 404");
@@ -795,6 +897,8 @@ client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
 
 ### US11 - ERROR: Delete review from non-existent book (→ 404)
 DELETE {{baseUrl}}/books/0000000000000/reviews/1
+X-Api-Token: {{token}}
+Authorization: Basic ZWRpdG9yMTplZGl0b3IxcGFzcw==
 
 > {%
 client.assert(response.status === 404, "Expected HTTP 404");
@@ -809,6 +913,8 @@ client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
 POST {{baseUrl}}/books
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic YWRtaW46YWRtaW5wYXNz
 
 {
   "isbn": "9780000000100",
@@ -827,6 +933,8 @@ client.assert(response.headers.valueOf("Location").includes("/books/978000000010
 POST {{baseUrl}}/books/9780000000100/reviews
 Content-Type: application/json
 Accept: application/json
+X-Api-Token: {{token}}
+Authorization: Basic YWRtaW46YWRtaW5wYXNz
 
 {
   "rating": 3,
@@ -837,8 +945,10 @@ Accept: application/json
 client.assert(response.status === 201, "Expected HTTP 201");
 %}
 
-### US6 Cascade - Delete the book
+### US6 Cascade - Delete the book (ADMIN)
 DELETE {{baseUrl}}/books/9780000000100
+X-Api-Token: {{token}}
+Authorization: Basic YWRtaW46YWRtaW5wYXNz
 
 > {%
 client.assert(response.status === 204, "Expected HTTP 204");
@@ -847,10 +957,52 @@ client.assert(response.status === 204, "Expected HTTP 204");
 ### US6 Cascade - Verify reviews are gone (→ 404, book no longer exists)
 GET {{baseUrl}}/books/9780000000100/reviews
 Accept: application/json
+X-Api-Token: {{token}}
 
 > {%
 client.assert(response.status === 404, "Expected HTTP 404 - book and its reviews no longer exist");
 client.assert(response.body.error === "NOT_FOUND", "Expected error=NOT_FOUND");
+%}
+
+###############################################################################
+# Security - Missing/Invalid API Token
+###############################################################################
+
+### ERROR: Missing X-Api-Token (→ 401)
+GET {{baseUrl}}/books
+Accept: application/json
+
+> {%
+client.assert(response.status === 401, "Expected HTTP 401");
+client.assert(response.body.error === "UNAUTHORIZED", "Expected error=UNAUTHORIZED");
+%}
+
+### ERROR: Invalid X-Api-Token (→ 401)
+GET {{baseUrl}}/books
+Accept: application/json
+X-Api-Token: invalid-token
+
+> {%
+client.assert(response.status === 401, "Expected HTTP 401");
+client.assert(response.body.error === "UNAUTHORIZED", "Expected error=UNAUTHORIZED");
+%}
+
+### ERROR: Write operation without Basic Auth (→ 401)
+POST {{baseUrl}}/books
+Content-Type: application/json
+Accept: application/json
+X-Api-Token: {{token}}
+
+{
+  "isbn": "9780000000003",
+  "title": "No Auth Book",
+  "author": "Some Author",
+  "price": 9.99,
+  "image": "https://example.com/images/noauth.jpg"
+}
+
+> {%
+client.assert(response.status === 401, "Expected HTTP 401");
 %}
 
 ###############################################################################

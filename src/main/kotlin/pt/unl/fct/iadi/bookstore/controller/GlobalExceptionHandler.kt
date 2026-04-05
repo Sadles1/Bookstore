@@ -3,6 +3,7 @@ package pt.unl.fct.iadi.bookstore.controller
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -60,6 +61,11 @@ class GlobalExceptionHandler {
     fun handleValidation(ex: ValidationException): ResponseEntity<ErrorResponse> =
         ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(ErrorResponse(error = "BAD_REQUEST", message = ex.message ?: "Validation error"))
+
+    @ExceptionHandler(AccessDeniedException::class)
+    fun handleAccessDenied(ex: AccessDeniedException): ResponseEntity<ErrorResponse> =
+        ResponseEntity.status(HttpStatus.FORBIDDEN)
+            .body(ErrorResponse(error = "FORBIDDEN", message = "Missing or invalid X-Api-Token"))
 
     /**
      * Handles 400 - Arguments Validation failure
