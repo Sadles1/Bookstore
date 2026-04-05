@@ -86,7 +86,7 @@ class BookstoreController(private val service: BookstoreService) : BookstoreAPI 
         return ResponseEntity.created(location).body(review.toResponse())
     }
 
-    @PreAuthorize("@bookstoreService.getReviewAuthor(#isbn, #reviewId) == authentication.name or hasRole('ADMIN')")
+    @PreAuthorize("@bookstoreService.getReviewAuthor(#isbn, #reviewId) == authentication.name")
     override fun replaceReview(
         @PathVariable isbn: String,
         @PathVariable reviewId: Long,
@@ -96,7 +96,7 @@ class BookstoreController(private val service: BookstoreService) : BookstoreAPI 
         return ResponseEntity.ok(review.toResponse())
     }
 
-    @PreAuthorize("@bookstoreService.getReviewAuthor(#isbn, #reviewId) == authentication.name or hasRole('ADMIN')")
+    @PreAuthorize("@bookstoreService.getReviewAuthor(#isbn, #reviewId) == authentication.name")
     override fun patchReview(
         @PathVariable isbn: String,
         @PathVariable reviewId: Long,

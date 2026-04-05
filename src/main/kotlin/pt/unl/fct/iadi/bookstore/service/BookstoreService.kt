@@ -77,12 +77,9 @@ class BookstoreService {
         return review
     }
 
-    fun getReviewAuthor(isbn: String, reviewId: Long): String {
-        if (!books.containsKey(isbn))
-            throw BookNotFoundException(isbn)
-
-        val list = reviews[isbn] ?: throw BookNotFoundException(isbn)
-        val review = list.find { it.id == reviewId } ?: throw ReviewNotFoundException(reviewId)
+    fun getReviewAuthor(isbn: String, reviewId: Long): String? {
+        val list = reviews[isbn] ?: return null
+        val review = list.find { it.id == reviewId } ?: return null
         return review.author
     }
 
